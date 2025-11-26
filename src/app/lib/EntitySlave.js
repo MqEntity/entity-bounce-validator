@@ -38,7 +38,7 @@ export default function EntitySlave() {
     //     return slowDomains.includes(domain);
     // };
 
-    const fetchWithRetry = async (email, attempts = 7, retry = true) => {
+    const fetchWithRetry = async (email, attempts = 3, retry = true) => {
         let lastMapped = null;
 
         for (let i = 0; i < attempts; i++) {
@@ -126,7 +126,7 @@ export default function EntitySlave() {
                 if (mapped === "invalid") return "invalid";
 
                 if (mapped === "unknown" && i < attempts - 1) {
-                    const delay = 20 * Math.pow(2, i);
+                    const delay = 50 * Math.pow(2, i);
                     await new Promise((r) => setTimeout(r, delay));
                     continue;
                 }
@@ -139,7 +139,7 @@ export default function EntitySlave() {
                 if (i === attempts - 1) {
                     return lastMapped && lastMapped !== "unknown" ? lastMapped : "error";
                 }
-                const delay = 20 * Math.pow(2, i);
+                const delay = 50 * Math.pow(2, i);
                 await new Promise((r) => setTimeout(r, delay));
             }
         }
@@ -167,7 +167,7 @@ export default function EntitySlave() {
                     { email, status: "processing...", loading: true, error: false },
                 ]);
 
-                const status = await fetchWithRetry(email, 7, retry);
+                const status = await fetchWithRetry(email, 3, retry);
 
                 setResults((prev) =>
                     prev.map((r) =>

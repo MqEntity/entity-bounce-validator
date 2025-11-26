@@ -59,7 +59,7 @@ export default function EntityMain() {
 
 	return (
 		<motion.div
-			className="max-w-6xl mx-auto p-8 bg-[#0a0a0ac3] text-white rounded-2xl shadow-lg font-mono mt-15"
+			className="max-w-6xl mx-auto p-8 bg-[#0a0a0ac3] text-white shadow-lg font-mono"
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.6 }}

@@ -65,8 +65,8 @@ export default function EmailForm({
 					rows={5}
 					value={emailsInput}
 					onChange={handleEmailsChange}
-					className={`scroll transition duration-200 w-full p-3 ring-1 rounded-lg bg-[#0a0a0a] focus:outline-none focus:ring-green-500 hover:ring-blue-500 placeholder:text-stone-600 ${
-						emailInputError ? "ring-red-500" : "ring-white"
+					className={`scroll transition duration-200 w-full p-3 border rounded-lg bg-[#0a0a0a] focus:outline-none focus:border-green-500 hover:border-blue-500 placeholder:text-stone-600 ${
+						emailInputError ? "border-red-500" : "border-white"
 					}`}
 				/>
 			</motion.div>
@@ -84,9 +84,9 @@ export default function EmailForm({
 						name="workers"
 						value={workerCount}
 						onChange={handleWorkerChange}
-						className={`transition duration-200 text-center ml-2 p-2 w-20 bg-[#0a0a0a] ring-1 ${
-							BudakError ? "ring-red-500" : "ring-white"
-						} rounded text-white focus:outline-none focus:ring-green-500 hover:ring-blue-500`}
+						className={`transition duration-200 text-center ml-2 p-2 w-20 bg-[#0a0a0a] border ${
+							BudakError ? "border-red-500" : "border-white"
+						} rounded text-white focus:outline-none focus:border-green-500 hover:border-blue-500`}
 					/>
 				</div>
 			</motion.div>
@@ -99,9 +99,9 @@ export default function EmailForm({
 				transition={{ delay: 0.3, duration: 0.4 }}
 				className={`w-full p-3 text-white rounded-lg ${
 					loading
-						? "bg-[#0a0a0a] ring-1 cursor-not-allowed ring-stone-600"
-						: "bg-[#0a0a0a] ring-1 hover:ring-blue-500 transition duration-200"
-				} focus:outline-none focus:ring-green-500`}
+						? "bg-[#0a0a0a] border cursor-not-allowed border-stone-600"
+						: "bg-[#0a0a0a] border hover:border-blue-500 transition duration-200"
+				} focus:outline-none focus:border-green-500`}
 			>
 				<code className="flex items-center justify-center">
 					{loading ? (

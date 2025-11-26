@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+body {
+	background: #292524;
+	color: #ededed;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.hide-scrollbar {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+html {
+	scrollbar-width: none;
+	scroll-behavior: smooth;
+	-ms-overflow-style: none;
+	font-family: var(--font-assistant-sans);
+}
+.scroll {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+	overflow-y: scroll;
+}
+.scroll::-webkit-scrollbar {
+	display: none;
+}

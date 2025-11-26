@@ -20,6 +20,7 @@ html {
 	scroll-behavior: smooth;
 	-ms-overflow-style: none;
 	font-family: var(--font-assistant-sans);
+	cursor: none;
 }
 .scroll {
 	scrollbar-width: none;
@@ -28,4 +29,31 @@ html {
 }
 .scroll::-webkit-scrollbar {
 	display: none;
+}
+
+.fixed {
+	position: fixed;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+	z-index: 9999;
+}
+
+.fixed.dot {
+	width: 6px;
+	height: 6px;
+	background: white;
+	border-radius: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.fixed.outer {
+	width: 25px;
+	height: 25px;
+	border-radius: 50%;
+	border: 1px solid white;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+	z-index: 9999;
+	mix-blend-mode: difference;
 }

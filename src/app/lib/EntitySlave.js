@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function EntitySlave() {
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const audioRef = useRef(null);
+
+    useEffect(() => {
+        audioRef.current = new Audio("/success.mp3");
+    }, []);
 
     const slowDomains = [
         "comcast.net", "juno.com", "netzero.com", "netzero.net", "hotmail.com", "live.com",
@@ -33,7 +38,7 @@ export default function EntitySlave() {
     //     return slowDomains.includes(domain);
     // };
 
-    const fetchWithRetry = async (email, attempts = 5, retry = true) => {
+    const fetchWithRetry = async (email, attempts = 7, retry = true) => {
         let lastMapped = null;
 
         for (let i = 0; i < attempts; i++) {
@@ -121,7 +126,7 @@ export default function EntitySlave() {
                 if (mapped === "invalid") return "invalid";
 
                 if (mapped === "unknown" && i < attempts - 1) {
-                    const delay = 50 * Math.pow(2, i);
+                    const delay = 20 * Math.pow(2, i);
                     await new Promise((r) => setTimeout(r, delay));
                     continue;
                 }
@@ -134,7 +139,7 @@ export default function EntitySlave() {
                 if (i === attempts - 1) {
                     return lastMapped && lastMapped !== "unknown" ? lastMapped : "error";
                 }
-                const delay = 50 * Math.pow(2, i);
+                const delay = 20 * Math.pow(2, i);
                 await new Promise((r) => setTimeout(r, delay));
             }
         }
@@ -162,7 +167,7 @@ export default function EntitySlave() {
                     { email, status: "processing...", loading: true, error: false },
                 ]);
 
-                const status = await fetchWithRetry(email, 5, retry);
+                const status = await fetchWithRetry(email, 7, retry);
 
                 setResults((prev) =>
                     prev.map((r) =>
@@ -187,6 +192,10 @@ export default function EntitySlave() {
             if (activeWorkers === 0) {
                 clearInterval(watcher);
                 setLoading(false);
+                if (audioRef.current) {
+                    audioRef.current.currentTime = 0;
+                    audioRef.current.play().catch(() => { });
+                }
             }
         }, 300);
     };

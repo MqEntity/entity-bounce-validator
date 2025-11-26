@@ -1,5 +1,10 @@
 import EntityMain from "./components/MainSection";
+import CursorWrapper from "./components/Style/CustomCursor";
 
 export default function Home() {
-	return <EntityMain />;
+	return (
+		<CursorWrapper>
+			<EntityMain />
+		</CursorWrapper>
+	);
 }

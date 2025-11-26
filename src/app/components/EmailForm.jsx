@@ -65,7 +65,7 @@ export default function EmailForm({
 					rows={5}
 					value={emailsInput}
 					onChange={handleEmailsChange}
-					className={`scroll transition duration-200 w-full p-3 border rounded-lg bg-[#0a0a0a] focus:outline-none focus:border-green-500 hover:border-blue-500 placeholder:text-stone-600 ${
+					className={`cursor-none scroll transition duration-200 w-full p-3 border rounded-lg bg-[#0a0a0a] focus:outline-none focus:border-green-500 hover:border-blue-500 placeholder:text-stone-600 ${
 						emailInputError ? "border-red-500" : "border-white"
 					}`}
 				/>
@@ -84,7 +84,7 @@ export default function EmailForm({
 						name="workers"
 						value={workerCount}
 						onChange={handleWorkerChange}
-						className={`transition duration-200 text-center ml-2 p-2 w-20 bg-[#0a0a0a] border ${
+						className={`cursor-none transition duration-200 text-center ml-2 p-2 w-20 bg-[#0a0a0a] border ${
 							BudakError ? "border-red-500" : "border-white"
 						} rounded text-white focus:outline-none focus:border-green-500 hover:border-blue-500`}
 					/>
@@ -97,13 +97,13 @@ export default function EmailForm({
 				initial={{ opacity: 0, y: 0 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ delay: 0.3, duration: 0.4 }}
-				className={`w-full p-3 text-white rounded-lg ${
+				className={`cursor-none w-full p-3 text-white rounded-lg ${
 					loading
 						? "bg-[#0a0a0a] border cursor-not-allowed border-stone-600"
 						: "bg-[#0a0a0a] border hover:border-blue-500 transition duration-200"
 				} focus:outline-none focus:border-green-500`}
 			>
-				<code className="flex items-center justify-center">
+				<code className="flex items-center justify-center hover:border-blue-500">
 					{loading ? (
 						<ArrowPathIcon className="animate-spin w-5 text-stone-800" />
 					) : (
@@ -115,7 +115,7 @@ export default function EmailForm({
 				<motion.button
 					type="button"
 					onClick={handleDownload}
-					className="mt-4 w-full p-3 bg-green-600 hover:bg-green-700 rounded-lg text-white transition duration-200"
+					className="cursor-none w-full p-3 hover:border-blue-500 focus:border-green-500 border rounded-lg text-white transition duration-200"
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ duration: 0.3 }}

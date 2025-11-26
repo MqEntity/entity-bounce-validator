@@ -13,7 +13,7 @@ export default function ListOfResults({
 
 	return (
 		<motion.div
-			className="p-4 bg-[#0a0a0a] border rounded-lg h-100 scroll"
+			className="p-4 bg-[#0a0a0a] border hover:border-blue-500 focus:border-green-500 rounded-lg h-100 scroll"
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			transition={{ duration: 0.5 }}

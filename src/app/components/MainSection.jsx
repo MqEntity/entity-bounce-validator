@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import EntitySlave from "@/app/lib/EntitySlave";
 import EmailForm from "./EmailForm";
 import ListOfResults from "./ListOfResults";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import { HiOutlineSpeakerWave, HiOutlineSpeakerXMark } from "react-icons/hi2";
 
 export default function EntityMain() {
 	const { results, loading, error, startProcessing } = EntitySlave();
@@ -14,7 +15,18 @@ export default function EntityMain() {
 	const [emailsInput, setEmailsInput] = useState("");
 	const [emailInputError, setEmailInputError] = useState("");
 	const [maxEmail, setMaxEMail] = useState("");
+	const [isPlaying, setIsPlaying] = useState(true);
+
 	const formRef = useRef();
+	const audioRef = useRef(null);
+
+	useEffect(() => {
+		audioRef.current = new Audio("/pvz.mp3");
+		audioRef.current.loop = true;
+		audioRef.current
+			.play()
+			.catch((err) => console.warn("Autoplay blocked:", err));
+	}, []);
 
 	const parseEmails = (input) =>
 		input
@@ -57,15 +69,33 @@ export default function EntityMain() {
 		saveAs(blob, "email-results.zip");
 	};
 
+	const toggleMusic = () => {
+		if (!audioRef.current) return;
+		if (!isPlaying) {
+			audioRef.current.play();
+		} else {
+			audioRef.current.pause();
+		}
+		setIsPlaying(!isPlaying);
+	};
+
 	return (
 		<motion.div
-			className="max-w-6xl mx-auto p-8 bg-[#0a0a0ac3] text-white shadow-lg font-mono"
+			className="max-w-6xl mx-auto p-8 bg-[#0a0a0ac3] text-white shadow-lg font-mono relative"
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.6 }}
 		>
+			<button
+				type="button"
+				onClick={toggleMusic}
+				className="cursor-none absolute top-4 right-4 text-2xl text-blue-500 hover:text-blue-400"
+			>
+				{isPlaying ? <HiOutlineSpeakerWave /> : <HiOutlineSpeakerXMark />}
+			</button>
+
 			<motion.h1
-				className="text-4xl font-bold text-center text-blue-600 mb-8 tracking-wide animate-pulse"
+				className="cursor-none text-4xl font-bold text-center text-blue-600 mb-8 tracking-wide animate-pulse"
 				initial={{ opacity: 0, y: -20 }}
 				animate={{ opacity: 1, y: 0 }}
 				exit={{ opacity: 0, y: -20 }}

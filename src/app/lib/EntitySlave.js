@@ -12,13 +12,13 @@ export default function EntitySlave({ user, setUser, setQuotaError }) {
         audioRef.current = new Audio("/success.mp3");
     }, []);
 
-    // const slowDomains = [
-    //     "comcast.net", "juno.com", "netzero.com", "netzero.net", "hotmail.com", "live.com",
-    //     "msn.com", "outlook.com", "yahoo.com", "ymail.com", "rocketmail.com", "aol.com",
-    //     "att.net", "bellsouth.net", "earthlink.net", "sbcglobal.net", "verizon.net",
-    //     "windstream.net", "shaw.ca", "bigpond.com", "optusnet.com.au", "optonline.net",
-    //     "btinternet.com", "virginmedia.com"
-    // ];
+    const slowDomains = [
+        "comcast.net", "juno.com", "netzero.com", "netzero.net", "hotmail.com", "live.com",
+        "msn.com", "outlook.com", "yahoo.com", "ymail.com", "rocketmail.com", "aol.com",
+        "att.net", "bellsouth.net", "earthlink.net", "sbcglobal.net", "verizon.net",
+        "windstream.net", "shaw.ca", "bigpond.com", "optusnet.com.au", "optonline.net",
+        "btinternet.com", "virginmedia.com"
+    ];
 
     const normalizeStatus = (s) => {
         if (!s) return "unknown";
@@ -33,10 +33,10 @@ export default function EntitySlave({ user, setUser, setQuotaError }) {
         return "unknown";
     };
 
-    // const shouldRetryInvalid = (email) => {
-    //     const domain = email.split("@")[1]?.toLowerCase();
-    //     return slowDomains.includes(domain);
-    // };
+    const shouldRetryInvalid = (email) => {
+        const domain = email.split("@")[1]?.toLowerCase();
+        return slowDomains.includes(domain);
+    };
 
     const fetchWithRetry = async (email, attempts = 10, retry = true, countUsage = true) => {
         let lastMapped = null;
@@ -101,10 +101,12 @@ export default function EntitySlave({ user, setUser, setQuotaError }) {
                 if (!retry) return mapped;
 
                 if (mapped === "valid") return "valid";
-                if (mapped === "invalid") return "invalid";
 
-                if (mapped === "unknown" && i < attempts - 1) {
-                    const delay = 20 * Math.pow(2, i);
+                if (
+                    (mapped === "unknown") ||
+                    (mapped === "invalid" && shouldRetryInvalid(email))
+                ) {
+                    const delay = 10 * Math.pow(2, i);
                     await new Promise(r => setTimeout(r, delay));
                     continue;
                 }
@@ -116,7 +118,7 @@ export default function EntitySlave({ user, setUser, setQuotaError }) {
                 if (i === attempts - 1) {
                     return lastMapped && lastMapped !== "unknown" ? lastMapped : "error";
                 }
-                const delay = 20 * Math.pow(2, i);
+                const delay = 10 * Math.pow(2, i);
                 await new Promise(r => setTimeout(r, delay));
             }
         }

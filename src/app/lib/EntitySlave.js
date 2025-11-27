@@ -38,7 +38,7 @@ export default function EntitySlave({ user, setUser, setQuotaError }) {
     //     return slowDomains.includes(domain);
     // };
 
-    const fetchWithRetry = async (email, attempts = 5, retry = true, countUsage = true) => {
+    const fetchWithRetry = async (email, attempts = 10, retry = true, countUsage = true) => {
         let lastMapped = null;
 
         for (let i = 0; i < attempts; i++) {
@@ -104,7 +104,7 @@ export default function EntitySlave({ user, setUser, setQuotaError }) {
                 if (mapped === "invalid") return "invalid";
 
                 if (mapped === "unknown" && i < attempts - 1) {
-                    const delay = 50 * Math.pow(2, i);
+                    const delay = 20 * Math.pow(2, i);
                     await new Promise(r => setTimeout(r, delay));
                     continue;
                 }
@@ -116,7 +116,7 @@ export default function EntitySlave({ user, setUser, setQuotaError }) {
                 if (i === attempts - 1) {
                     return lastMapped && lastMapped !== "unknown" ? lastMapped : "error";
                 }
-                const delay = 50 * Math.pow(2, i);
+                const delay = 20 * Math.pow(2, i);
                 await new Promise(r => setTimeout(r, delay));
             }
         }
@@ -151,7 +151,7 @@ export default function EntitySlave({ user, setUser, setQuotaError }) {
                     { email, status: "processing...", loading: true, error: false },
                 ]);
 
-                const status = await fetchWithRetry(email, 5, retry, true);
+                const status = await fetchWithRetry(email, 10, retry, true);
 
                 setResults((prev) =>
                     prev.map((r) =>

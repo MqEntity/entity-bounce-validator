@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 
-export default function EntitySlave() {
+export default function EntitySlave({ user, setUser, setQuotaError }) {
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -12,13 +12,13 @@ export default function EntitySlave() {
         audioRef.current = new Audio("/success.mp3");
     }, []);
 
-    const slowDomains = [
-        "comcast.net", "juno.com", "netzero.com", "netzero.net", "hotmail.com", "live.com",
-        "msn.com", "outlook.com", "yahoo.com", "ymail.com", "rocketmail.com", "aol.com",
-        "att.net", "bellsouth.net", "earthlink.net", "sbcglobal.net", "verizon.net",
-        "windstream.net", "shaw.ca", "bigpond.com", "optusnet.com.au", "optonline.net",
-        "btinternet.com", "virginmedia.com"
-    ];
+    // const slowDomains = [
+    //     "comcast.net", "juno.com", "netzero.com", "netzero.net", "hotmail.com", "live.com",
+    //     "msn.com", "outlook.com", "yahoo.com", "ymail.com", "rocketmail.com", "aol.com",
+    //     "att.net", "bellsouth.net", "earthlink.net", "sbcglobal.net", "verizon.net",
+    //     "windstream.net", "shaw.ca", "bigpond.com", "optusnet.com.au", "optonline.net",
+    //     "btinternet.com", "virginmedia.com"
+    // ];
 
     const normalizeStatus = (s) => {
         if (!s) return "unknown";
@@ -38,7 +38,7 @@ export default function EntitySlave() {
     //     return slowDomains.includes(domain);
     // };
 
-    const fetchWithRetry = async (email, attempts = 3, retry = true) => {
+    const fetchWithRetry = async (email, attempts = 5, retry = true, countUsage = true) => {
         let lastMapped = null;
 
         for (let i = 0; i < attempts; i++) {
@@ -52,15 +52,10 @@ export default function EntitySlave() {
                 const data = await res.json();
 
                 if (data.status === "SYNTAX") {
-                    setResults((prev) =>
-                        prev.map((r) =>
+                    setResults(prev =>
+                        prev.map(r =>
                             r.email === email
-                                ? {
-                                    email,
-                                    status: "email syntax error",
-                                    loading: false,
-                                    error: true,
-                                }
+                                ? { email, status: "email syntax error", loading: false, error: true }
                                 : r
                         )
                     );
@@ -68,15 +63,10 @@ export default function EntitySlave() {
                 }
 
                 if (data.status === "DOMAIN") {
-                    setResults((prev) =>
-                        prev.map((r) =>
+                    setResults(prev =>
+                        prev.map(r =>
                             r.email === email
-                                ? {
-                                    email,
-                                    status: "mx record not found",
-                                    loading: false,
-                                    error: true,
-                                }
+                                ? { email, status: "mx record not found", loading: false, error: true }
                                 : r
                         )
                     );
@@ -84,15 +74,10 @@ export default function EntitySlave() {
                 }
 
                 if (data.status === "DISPOSABLE") {
-                    setResults((prev) =>
-                        prev.map((r) =>
+                    setResults(prev =>
+                        prev.map(r =>
                             r.email === email
-                                ? {
-                                    email,
-                                    status: "disposable email",
-                                    loading: false,
-                                    error: true,
-                                }
+                                ? { email, status: "disposable email", loading: false, error: true }
                                 : r
                         )
                     );
@@ -100,15 +85,10 @@ export default function EntitySlave() {
                 }
 
                 if (data.status === "FORMAT") {
-                    setResults((prev) =>
-                        prev.map((r) =>
+                    setResults(prev =>
+                        prev.map(r =>
                             r.email === email
-                                ? {
-                                    email,
-                                    status: "invalid email",
-                                    loading: false,
-                                    error: true,
-                                }
+                                ? { email, status: "invalid email", loading: false, error: true }
                                 : r
                         )
                     );
@@ -116,18 +96,16 @@ export default function EntitySlave() {
                 }
 
                 const mapped = normalizeStatus(data.status);
-
                 lastMapped = mapped || lastMapped;
 
                 if (!retry) return mapped;
 
                 if (mapped === "valid") return "valid";
-
                 if (mapped === "invalid") return "invalid";
 
                 if (mapped === "unknown" && i < attempts - 1) {
                     const delay = 50 * Math.pow(2, i);
-                    await new Promise((r) => setTimeout(r, delay));
+                    await new Promise(r => setTimeout(r, delay));
                     continue;
                 }
 
@@ -135,17 +113,17 @@ export default function EntitySlave() {
 
             } catch (err) {
                 if (!retry) return "error";
-
                 if (i === attempts - 1) {
                     return lastMapped && lastMapped !== "unknown" ? lastMapped : "error";
                 }
                 const delay = 50 * Math.pow(2, i);
-                await new Promise((r) => setTimeout(r, delay));
+                await new Promise(r => setTimeout(r, delay));
             }
         }
 
         return lastMapped || "unknown";
     };
+
 
     const startProcessing = async (emails, workerCount, retry = true) => {
         setResults([]);
@@ -154,6 +132,7 @@ export default function EntitySlave() {
 
         const queue = [...emails];
         let activeWorkers = 0;
+        let stoppedEarly = false;
 
         const worker = async () => {
             activeWorkers++;
@@ -162,12 +141,17 @@ export default function EntitySlave() {
                 const email = queue.shift();
                 if (!email) continue;
 
+                if (user && user.dailyUsage >= user.dailyEmailLimit) {
+                    stoppedEarly = true;
+                    break;
+                }
+
                 setResults((prev) => [
                     ...prev,
                     { email, status: "processing...", loading: true, error: false },
                 ]);
 
-                const status = await fetchWithRetry(email, 3, retry);
+                const status = await fetchWithRetry(email, 5, retry, true);
 
                 setResults((prev) =>
                     prev.map((r) =>
@@ -181,6 +165,26 @@ export default function EntitySlave() {
                             : r
                     )
                 );
+
+                if (user && status !== "unknown") {
+                    try {
+                        const res = await fetch("/api/user-quota", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ apiKey: user.apiKey, increment: 1 }),
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            setUser(prev => ({
+                                ...prev,
+                                dailyUsage: data.usage.dailyUsage,
+                                remainingQuota: data.usage.remainingQuota,
+                            }));
+                        }
+                    } catch (err) {
+                        setQuotaError("Failed to update quota");
+                    }
+                }
             }
 
             activeWorkers--;
@@ -188,16 +192,21 @@ export default function EntitySlave() {
 
         for (let i = 0; i < workerCount; i++) worker();
 
-        const watcher = setInterval(() => {
-            if (activeWorkers === 0) {
-                clearInterval(watcher);
-                setLoading(false);
-                if (audioRef.current) {
-                    audioRef.current.currentTime = 0;
-                    audioRef.current.play().catch(() => { });
+        return new Promise((resolve) => {
+            const watcher = setInterval(() => {
+                if (activeWorkers === 0) {
+                    clearInterval(watcher);
+                    setLoading(false);
+
+                    if (audioRef.current) {
+                        audioRef.current.currentTime = 0;
+                        audioRef.current.play().catch(() => { });
+                    }
+
+                    resolve(stoppedEarly);
                 }
-            }
-        }, 300);
+            }, 300);
+        });
     };
 
     return { results, loading, error, startProcessing };
